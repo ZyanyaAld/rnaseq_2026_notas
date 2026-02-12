@@ -1,0 +1,54 @@
+
+# Recount3 
+## Notas de la clase del 12/02/2026
+
+## Load recount3 R package
+
+
+```{R}
+library("recount3")
+```
+Después tenemos que identificar un estudio de interes y determinar si queremos accesar la información a nivel de genes, exones, etc. Sabiendo el estudio de interes, podemos descargar los datos usando la función create_rse() como mostramos a continuación. create_rse() tiene argumentos con los cuales podemos especificar la anotación que queremos usar (las opciones dependen del organismo).
+
+```{R}
+## Revisemos todos los proyectos con datos de humano en recount3
+human_projects <- available_projects()
+```
+
+
+```{R}
+## Encuentra tu proyecto de interés. Aquí usaremos
+## SRP009615 de ejemplo
+proj_info <- subset(
+    human_projects,
+    project == "SRP009615" & project_type == "data_sources"
+)
+## Crea un objeto de tipo RangedSummarizedExperiment (RSE)
+## con la información a nivel de genes
+rse_gene_SRP009615 <- create_rse(proj_info)
+```
+
+
+```{R}
+## Explora el objeto RSE
+rse_gene_SRP009615
+```
+
+
+```{R}
+## Convirtamos las cuentas por nucleotido a cuentas por lectura
+## usando compute_read_counts().
+## Para otras transformaciones como RPKM y TPM, revisa transform_counts().
+assay(rse_gene_SRP009615, "counts") <- compute_read_counts(rse_gene_SRP009615)
+```
+
+
+
+```{R}
+## Para este estudio en específico, hagamos más fácil de usar la
+## información del experimento
+rse_gene_SRP009615 <- expand_sra_attributes(rse_gene_SRP009615)
+colData(rse_gene_SRP009615)[
+    ,
+    grepl("^sra_attribute", colnames(colData(rse_gene_SRP009615)))
+```
